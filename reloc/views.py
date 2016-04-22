@@ -27,10 +27,12 @@ def rest_sla(request):
         data = []
         for rt in rts:
             travel_time = map_service(latlong, rt.latlong) 
-            item = {}
-            item['name'] = rt.name
-            item['sla'] = travel_time
-            data.append(item)
+            rest = {}
+            rest['name'] = rt.name
+            rest['sla'] = travel_time
+            if rt.ch:
+                rest['chain_name'] = rt.ch.chain_name
+            data.append(rest)
 
         #sort by sla
         sorted_data = sorted(data, key=lambda k : k['sla'])
@@ -61,19 +63,24 @@ def cart_sla(request):
         if type(item_ids) != list:
             valid = False
 
+        rids = MenuItem.objects.filter(pk__in=item_ids).values_list('restaurant__pk').distinct()
+
+        try:
+            restaurant = Restaurant.objects.get(pk=rids[0])
+        except Restaurant.DoesNotExist:
+            valid = False
+
         if not valid:
             response['status'] = 'error'
             response['message'] = 'invalid data'
             return JsonResponse(response, status=400)
  
         #checkif cart has all items from same restaurant
-        rids = MenuItem.objects.filter(pk__in=item_ids).values_list('restaurant__pk').distinct()
+
         if len(rids) > 1:
             response['status'] = 'error'
             response['message'] = 'cart contains items from more than one restaurant'
             return JsonResponse(response, status=400)
-
-        restaurant = Restaurant.objects.get(pk=rids[0])
 
         travel_time = map_service(latlong, restaurant.pk)
         prep_time = 0
@@ -110,6 +117,10 @@ def allow_items(request):
         post_data = json.loads(request.body)
         latlong = post_data.get('latlong')
         rid = post_data.get('rid')
+        try:
+            restaurant = Restaurant.objects.get(pk=rid)
+        except Restaurant.DoesNotExist:
+            valid = False
 
         valid = True
         if None in [latlong, rid]:
@@ -119,6 +130,45 @@ def allow_items(request):
             response['status'] = 'error'
             response['message'] = 'invalid data'
             return JsonResponse(response, status=400)
+
+        sla_conf = get_sla_conf()
+        travel_time = map_service(latlong, rid)
+        data = []
+
+        #checking if restaurant is in sensitive item radius or not
+        sense_high = True
+        sense_med = True
+        sense_high_radius = sla_conf['sensitive']
+        sense_mid_radius = sla_conf['sensitive_med']
+
+        rts = geo_nearby(latlong, sense_med_radius)
+        for rt in rts:
+            if rt.pk == rid:
+                sense_med = False
+                sense_high = False
+
+        if sense_high:
+            rts = geo_nearby(latlong, sense_high_radius)
+            for rt in rts:
+                if rt.pk == rid:
+                    sense_high = False
+
+        data = []
+        max_sla = sla_conf['sla']
+
+        for item in MenuItem.objects.filter(rt=restaurant):
+            feasible = True
+            if item.sensitive == 0 and sense_med == False:
+                data.append({'item': item.item, 'item_id': item.pk, 'feasible': False})
+            elif item.sensitive == 1 and sense_high == False:
+                data.append({'item': item.item, 'item_id': item.pk, 'feasible': False})
+            else:
+                if travel_time + item.prep_time > max_sla:
+                    feasible = False
+                data.append({'item': item.item, 'item_id':item.pk, 'feasible': feasible})
+
+        response['data'] = data
+        response['status'] = "success"
 
         return JsonResponse(response, status=200)
     else:
