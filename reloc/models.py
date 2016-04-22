@@ -20,7 +20,7 @@ class Restaurant(Base):
     name = models.CharField(max_length=200, blank=False)
     geo = models.CharField(max_length=64, blank=False) #comma-separated latlong will be stored
     is_chain = models.BooleanField(default=False)
-    ch = models.ForeignKey(Chain)
+    ch = models.ForeignKey(Chain, null=True)
 
 
 class MenuItem(Base):
