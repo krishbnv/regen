@@ -3,5 +3,5 @@ from reloc import views as rlv
 
 
 urlpatterns = [
-    url(r'^restaurants/', rlv.restaurants, name="getrest"),
+    url(r'^resla/', rlv.rest_sla, name="getresla"),
 ]
