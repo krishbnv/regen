@@ -26,14 +26,14 @@ def rest_sla(request):
         #assuming map_service has realtime traffic data
         data = []
         for rt in rts:
-            travel_time = map_service(latlong, rt.latlong) 
+            travel_time = map_service(latlong, rt.geo)
             rest = {}
             rest['name'] = rt.name
             rest['sla'] = travel_time
             if rt.ch:
                 rest['chain_name'] = rt.ch.chain_name
             items = []
-            for item in Item.objects.filter(rt=rt, is_active=True):
+            for item in MenuItem.objects.filter(rt=rt, is_active=True):
                 items.append({'item':item.item, 'price':item.price})
             rest['items'] = items
             data.append(rest)
@@ -91,7 +91,7 @@ def cart_sla(request):
         #assuming parallel preparation
         #adding highest item prep time to travel-time for sla
         for item_id in item_ids:
-            item_prep = Item.objects.get(pk=item_id).prep_time
+            item_prep = MenuItem.objects.get(pk=item_id).prep_time
             if item_prep > prep_time:
                 prep_time = item_prep
 
