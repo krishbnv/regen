@@ -32,6 +32,10 @@ def rest_sla(request):
             rest['sla'] = travel_time
             if rt.ch:
                 rest['chain_name'] = rt.ch.chain_name
+            items = []
+            for item in Item.objects.filter(rt=rt, is_active=True):
+                items.append({'item':item.item, 'price':item.price})
+            rest['items'] = items
             data.append(rest)
 
         #sort by sla
