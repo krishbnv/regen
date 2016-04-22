@@ -1,5 +1,5 @@
-from django.db import models
 from __future__ import unicode_literals
+from django.db import models
 # Create your models here.
 
 
@@ -8,8 +8,8 @@ Base Model
 """
 class Base(models.Model):
     is_active = models.BooleanField(default=True)
-    modified_on = models.DatetimeField(auto_now=True)
-    created_on = models.DatetimeField(auto_now_add=True)
+    modified_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
 
 
 class Restaurant(Base):
