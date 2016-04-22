@@ -2,6 +2,6 @@ from django.conf.urls import url
 from reloc import views as rlv
 
 
-url_patterns = [
+urlpatterns = [
     url(r'^restaurants/', rlv.restaurants, name="getrest"),
 ]

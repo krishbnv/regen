@@ -89,6 +89,7 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 LANGUAGE_CODE = 'en-us'
 

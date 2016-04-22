@@ -6,3 +6,7 @@ import json
 # Create your views here.
 
 def restaurants(request):
+    response = {}
+    response['data'] = []
+    response['message'] = "success"
+    return JsonResponse(response, status=200)
