@@ -1,4 +1,4 @@
-from regen.models import Restaurants
+from reloc.models import Restaurant
 
 
 def map_service(latlong, rest_id):
@@ -15,5 +15,10 @@ def geo_nearby(latlong, radius):
     Takes latlong of consumer and radius as input
     returns list of restaurants in the georadius 
     """
-    rts = []
+    rts = Restaurants.objects.filter(is_active=True)
     return rts
+
+
+def get_sla_conf():
+    sla_conf = json.load(open('sla_conf.json'))
+    return sla_conf

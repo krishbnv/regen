@@ -108,4 +108,3 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 import json
-sla_conf = json.load(open('sla_conf.json'))

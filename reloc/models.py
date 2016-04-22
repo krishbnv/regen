@@ -12,15 +12,20 @@ class Base(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
 
 
+class Chain(Base):
+    chain_name = models.CharField(max_length=200, blank=False)
+
+
 class Restaurant(Base):
-    name = models.CharField(max_length=200)
-    geo = models.CharField(max_length=64) #comma-separated latlong will be stored
-    is_branch = models.BooleanField(default=True)
+    name = models.CharField(max_length=200, blank=False)
+    geo = models.CharField(max_length=64, blank=False) #comma-separated latlong will be stored
     is_chain = models.BooleanField(default=False)
+    ch = models.ForeignKey(Chain)
 
 
 class MenuItem(Base):
     item = models.CharField(max_length=200)
+    rt = models.ForeignKey(Restaurant)
     price = models.FloatField()
     prep_time = models.IntegerField()
-    is_sensitive = models.BooleanField(default=False)
+    is_sensitive = models.IntegerField(default=None, null=True)
